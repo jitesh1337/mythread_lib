@@ -1,7 +1,7 @@
 # This Makefile is a part of a thread library project at NCSU
 # Members: Jitesh Shah, Salil Kanitkar, Aditya Jalgaonkar
 
-SRCS = mythread_create.c mythread_exit.c
+SRCS =  mythread_q.c mythread_create.c mythread_exit.c
 OBJS = $(SRCS:.c=.o)
 TEST_SRCS = mythread_test.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
@@ -32,4 +32,4 @@ tags:
 	find . -name "*.[cChH]" | etags -
 
 test:	$(TEST_OBJS) lib
-	$(CC) -o mythread_test $(CFLAGS) $(EXTRA_CFLAGS) -l mythread $(TEST_OBJS)
+	$(CC) -o mythread_test $(CFLAGS) $(EXTRA_CFLAGS) -l mythread $(TEST_OBJS) $(LIB)
