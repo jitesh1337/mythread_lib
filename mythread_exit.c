@@ -1,0 +1,3 @@
+void mythread_exit()
+{
+}
