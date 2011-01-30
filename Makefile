@@ -13,8 +13,10 @@ LIB = libmythread.a
 AR = /usr/bin/ar
 CC = gcc
 
-.PHONY: all clean tags test
-all: $(LIB)
+.PHONY: all lib clean tags test
+all: lib test
+
+lib: $(LIB)
 
 libmythread.a: $(OBJS)
 	$(AR) rcs $(LIB) $(OBJS)
@@ -29,5 +31,5 @@ tags:
 	find . -name "*.[cChH]" | xargs ctags
 	find . -name "*.[cChH]" | etags -
 
-test:	$(TEST_OBJS) $(LIB)
+test:	$(TEST_OBJS) lib
 	$(CC) -o mythread_test $(CFLAGS) $(EXTRA_CFLAGS) -l mythread $(TEST_OBJS)

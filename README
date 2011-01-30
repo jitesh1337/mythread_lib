@@ -3,13 +3,16 @@ mythread:
 Compiling:
 	$ make
 
-Cleaning
+Library:
+	$ make lib
+
+Cleaning:
 	$ make clean
 
-Tags
+Tags:
 	$ make tags
 
-Test file
+Test file:
 	$ make test
 
 Display archive contents:
