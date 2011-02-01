@@ -5,7 +5,7 @@
 #include<malloc.h>
 #include<stdio.h>
 #include<stdlib.h>
-
+#include<futex.h>
 #ifndef MYTHREAD_H
 #define MYTHREAD_H
 
@@ -22,10 +22,11 @@ typedef struct mythread {
 
   unsigned long tid; //the thread-id of the thread
   int state; //the state in which the corresponding thread will be.
-  void * (*start_fun) (void *); //the func pointer to the thread function to be executed.
+  void * (*start_func) (void *); //the func pointer to the thread function to be executed.
   void *args; //the arguments to be passed to the thread function.
   void *returnValue; //the return value that thread returns.
-
+  struct mythread *blockedForJoin; //
+  struct futex sched_futex; //
   struct mythread *prev, *next; //pointers to traverse the tcb DLL
 
 }mythread_t;
