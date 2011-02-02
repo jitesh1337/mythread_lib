@@ -7,8 +7,8 @@
 void *fun(void *arg)
 {
 	int *ptr = (int *)arg;
-
-	printf("Executed this: %d\n", *ptr);
+	mythread_t t = mythread_self();
+	printf("Executed this: %d %ld\n", *ptr, (unsigned long)t.tid);
 	return NULL;
 }
 

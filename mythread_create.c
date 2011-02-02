@@ -71,7 +71,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	/* Save the tid returned by clone system call in the tcb. */
 	new_thread_ID->tid = tid;
 
-	printf("This should be printed first\n");
+	printf("This should be printed first %ld\n",(unsigned long)new_thread_ID->tid);
 	futex_up(&new_thread_ID->sched_futex);
 
 	return 0;

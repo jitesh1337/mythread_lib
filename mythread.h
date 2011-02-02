@@ -20,7 +20,7 @@ typedef struct mythread_attr {
 /* Thread Control Block structure */
 typedef struct mythread {
 
-  unsigned long tid; //the thread-id of the thread
+  pid_t tid; //the thread-id of the thread
   int state; //the state in which the corresponding thread will be.
   void * (*start_func) (void *); //the func pointer to the thread function to be executed.
   void *args; //the arguments to be passed to the thread function.
