@@ -6,8 +6,12 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<futex.h>
+
 #ifndef MYTHREAD_H
 #define MYTHREAD_H
+
+#define FALSE 0
+#define TRUE 1
 
 #define RUNNING 0
 #define READY 1
@@ -32,7 +36,6 @@ typedef struct mythread {
 }mythread_t;
 
 extern mythread_t *mythread_q_head; //the pointer pointing to head node of the tcb q
-
 /* add your code here */
 
 /*

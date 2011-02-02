@@ -12,6 +12,9 @@
 #define CLONE_SIGNAL            (CLONE_SIGHAND | CLONE_THREAD)
 
 int mythread_wrapper(void *);
+void * mythread_idle(void *);
+
+mythread_t * mythread_q_head;
 
 int mythread_create(mythread_t * new_thread_ID,
 		    mythread_attr_t * attr,
@@ -29,6 +32,35 @@ int mythread_create(mythread_t * new_thread_ID,
 	int clone_flags = (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGNAL
 			   | CLONE_PARENT_SETTID
 			   | CLONE_CHILD_CLEARTID | CLONE_SYSVSEM);
+
+	if (mythread_q_head == NULL) {
+
+	  /* This is the very first mythread_create call. Set up the Q first with tcb nodes for main thread. */
+	  printf("Creating node for Main thread \n");
+	  mythread_t *main_tcb = (mythread_t *)malloc(sizeof(mythread_t));
+	  main_tcb->start_func = NULL;
+	  main_tcb->args = NULL;
+	  main_tcb->state = READY;
+	  main_tcb->returnValue = NULL;
+	  main_tcb->blockedForJoin = NULL;
+
+	  /* Initialize futex to zero*/
+	  futex_init(&main_tcb->sched_futex, 0);
+
+	  /* Put it in the Q of thread blocks */
+	  mythread_q_add(main_tcb);
+	  
+	  /* Now create the node for Idle thread. */
+	  printf("Creating node for Idle thread \n");
+	  mythread_t *idle_tcb;
+	  idle_tcb = (mythread_t *)malloc(sizeof(mythread_t));
+	  if(idle_tcb == NULL) {
+	    printf("malloc error!");
+	    return(-ENOMEM);
+	  }
+	  mythread_create(idle_tcb, NULL, mythread_idle, NULL);
+
+	}
 
 	/*Stack-size argument is not provided */
 	if (attr == NULL)
@@ -97,3 +129,10 @@ int mythread_wrapper(void *thread_tcb)
 	return 0;
 
 }
+
+void * mythread_idle(void *phony)
+{
+  for(;;)
+    sched_yield();
+}
+

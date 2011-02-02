@@ -9,6 +9,7 @@ void *fun(void *arg)
 	int *ptr = (int *)arg;
 	mythread_t t = mythread_self();
 	printf("Executed this: %d %ld\n", *ptr, (unsigned long)t.tid);
+	while (1) ;
 	return NULL;
 }
 
@@ -21,6 +22,8 @@ int main()
    mythread_create(&p[0], NULL , &fun, &a);
 
 	printf("Hurrayy!!!\n");
+   mythread_create(&p[1], NULL , &fun, &a);
+	printf("Hurrayy- parat!!!\n");
 	while(1);
   /* int i;
   for(i=1;i<=10;i++) {
