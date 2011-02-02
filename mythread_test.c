@@ -4,16 +4,29 @@
 
 #include<mythread.h>
 
+void *fun(void *arg)
+{
+	int *ptr = (int *)arg;
+
+	printf("Executed this: %d\n", *ptr);
+	return NULL;
+}
+
 int main()
 {
   mythread_t p[20];
-  mythread_attr_t p_attr;
+	int a = 10;
+  //mythread_attr_t p_attr;
   
-  int i;
+   mythread_create(&p[0], NULL , &fun, &a);
+
+	printf("Hurrayy!!!\n");
+	while(1);
+  /* int i;
   for(i=1;i<=10;i++) {
     p[i].state = i;
     p[i].tid = (unsigned long)i;
-    mythread_create(&p[i],&p_attr,NULL,NULL);
+   mythread_create(&p[i], NULL , &fun, NULL);
   }
 
   mythread_exit(&p[5]);
@@ -33,7 +46,7 @@ int main()
     mythread_create(&p[i],&p_attr,NULL,NULL);
   }
 
-  mythread_exit(&p[15]);
+  mythread_exit(&p[15]); */
 
   return 0;
 }
