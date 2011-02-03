@@ -6,9 +6,9 @@
 
 struct futex gfutex;
 
-char debug[1000];
+char debug_msg[1000];
 
-pid_t gettid()
+static pid_t gettid()
 {
 	return (pid_t) syscall(SYS_gettid);
 }
@@ -22,11 +22,9 @@ int mythread_dispatcher(mythread_t *node)
 	if (ptr == node)
 		return -1;
 	else {
-		sprintf(debug, "Wake-up:%ld Sleep:%ld %d\n", (unsigned long)ptr->tid, (unsigned long)node->tid, ptr->sched_futex.count);
-		write(1, debug, strlen(debug));
+		DEBUG_PRINTF("Dispatcher: Wake-up:%ld Sleep:%ld %d %d\n", (unsigned long)ptr->tid, (unsigned long)node->tid, ptr->sched_futex.count, ptr->state);
 		futex_up(&ptr->sched_futex);
-		sprintf(debug, "Woken up:%ld, to %d\n", (unsigned long)ptr->tid, ptr->sched_futex.count);
-		write(1, debug, strlen(debug));
+		DEBUG_PRINTF("Dispatcher: Woken up:%ld, to %d\n", (unsigned long)ptr->tid, ptr->sched_futex.count);
 		return 0;
 	}
 }
@@ -57,15 +55,13 @@ int mythread_yield()
 		return 0;
 	}
 
-	sprintf(debug, "Might sleep on first down %ld %d\n", (unsigned long)self->tid, self->sched_futex.count);
-	write(1, debug, strlen(debug));
+	DEBUG_PRINTF("Yield: Might sleep on first down %ld %d\n", (unsigned long)self->tid, self->sched_futex.count);
 	if (self->sched_futex.count > 0)
 		futex_down(&self->sched_futex);
 
 	futex_up(&gfutex);
 
-	sprintf(debug, "Might sleep on second down %ld %d\n", (unsigned long)self->tid, self->sched_futex.count);
-	write(1, debug, strlen(debug));
+	DEBUG_PRINTF("Yield: Might sleep on second down %ld %d\n", (unsigned long)self->tid, self->sched_futex.count);
 	futex_down(&self->sched_futex);
 
 	return 0;

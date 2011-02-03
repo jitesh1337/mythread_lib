@@ -47,7 +47,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	if (mythread_q_head == NULL) {
 
 	  /* This is the very first mythread_create call. Set up the Q first with tcb nodes for main thread. */
-	  printf("Creating node for Main thread \n");
+	  DEBUG_PRINTF("create: Creating node for Main thread \n");
 	  main_tcb = (mythread_t *)malloc(sizeof(mythread_t));
 	  main_tcb->start_func = NULL;
 	  main_tcb->args = NULL;
@@ -67,7 +67,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	  mythread_q_add(main_tcb);
 	  
 	  /* Now create the node for Idle thread. */
-	  printf("Creating node for Idle thread \n");
+	  DEBUG_PRINTF("Creating node for Idle thread \n");
 	  idle_tcb = (mythread_t *)malloc(sizeof(mythread_t));
 	  if(idle_tcb == NULL) {
 	    printf("malloc error!");
@@ -119,7 +119,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	/* Save the tid returned by clone system call in the tcb. */
 	new_thread_ID->tid = tid;
 
-	printf("This should be printed first %ld\n",(unsigned long)new_thread_ID->tid);
+	DEBUG_PRINTF("create: This should be printed first %ld\n",(unsigned long)new_thread_ID->tid);
 	//futex_up(&new_thread_ID->sched_futex);
 
 	return 0;
@@ -131,9 +131,9 @@ int mythread_wrapper(void *thread_tcb)
 	mythread_t *new_tcb;
 	new_tcb = (mythread_t *) thread_tcb;
 
-	printf("Wrapper: will sleep on futex: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count); fflush(stdout);
+	DEBUG_PRINTF("Wrapper: will sleep on futex: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count); fflush(stdout);
 	futex_down(&new_tcb->sched_futex);
-	printf("Wrapper: futex value: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count); fflush(stdout);
+	DEBUG_PRINTF("Wrapper: futex value: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count); fflush(stdout);
 	new_tcb->start_func(new_tcb->args);
 
 	/* Do a down on the futex corresponding to this tcb. */
@@ -151,7 +151,7 @@ int mythread_wrapper(void *thread_tcb)
 void * mythread_idle(void *phony)
 {
 	while(1) {
-		printf("I am idle\n"); fflush(stdout);
+		DEBUG_PRINTF("I am idle\n"); fflush(stdout);
 		mythread_yield();
 	}
 }

@@ -6,6 +6,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<futex.h>
+#include <string.h>
 
 #ifndef MYTHREAD_H
 #define MYTHREAD_H
@@ -75,5 +76,9 @@ int mythread_join(mythread_t target_thread, void **status);
 void mythread_exit(void *retval);
 
 int mythread_dispatcher(mythread_t *);
+
+extern char debug_msg[1000];
+#define DEBUG_PRINTF(...) sprintf(debug_msg, __VA_ARGS__); \
+			write(1, debug_msg, strlen(debug_msg));
 
 #endif /* MYTHREAD_H */
