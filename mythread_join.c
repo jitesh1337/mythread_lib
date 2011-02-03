@@ -29,5 +29,6 @@ int mythread_join(mythread_t target_thread, void **status)
 	DEBUG_PRINTF("Join: Setting state of %ld to %d\n", (unsigned long)self_ptr->tid, BLOCKED);
 	self_ptr->state = BLOCKED;
 	mythread_yield();
+	*status = target->returnValue;
 	return 0;
 }

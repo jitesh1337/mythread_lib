@@ -26,7 +26,8 @@ void mythread_exit(void *return_val)
 	self_ptr->returnValue = return_val;
 
 	/* Change the state of any thread waiting on us */
-	self_ptr->blockedForJoin->state = READY;
+	if (self_ptr->blockedForJoin != NULL)
+		self_ptr->blockedForJoin->state = READY;
 
 	//futex_up(&next->sched_futex);
 	mythread_dispatcher(self_ptr);
