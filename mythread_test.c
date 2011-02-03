@@ -24,6 +24,7 @@ int main()
 	printf("Hurrayy!!!\n");
    mythread_create(&p[1], NULL , &fun, &a);
 	printf("Hurrayy- parat!!!\n");
+	mythread_yield();
 	while(1);
   /* int i;
   for(i=1;i<=10;i++) {

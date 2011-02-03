@@ -59,7 +59,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	  main_tcb->tid = tid;
 
 	  /* Initialize futex to zero*/
-	  futex_init(&main_tcb->sched_futex, 0);
+	  futex_init(&main_tcb->sched_futex, 1);
 
 	  /* Put it in the Q of thread blocks */
 	  mythread_q_add(main_tcb);
@@ -117,7 +117,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	new_thread_ID->tid = tid;
 
 	printf("This should be printed first %ld\n",(unsigned long)new_thread_ID->tid);
-	futex_up(&new_thread_ID->sched_futex);
+	//futex_up(&new_thread_ID->sched_futex);
 
 	return 0;
 }
