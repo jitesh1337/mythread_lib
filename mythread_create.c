@@ -34,7 +34,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	/* pointer to the stack used by the child process to be created by clone later */
 	char *child_stack;
 	unsigned long stackSize;
-	unsigned long tid;
+	pid_t tid;
 
 	/* Flags to be passed to clone system call. 
 	   This flags variable is picked up from pthread source code. 
@@ -55,7 +55,6 @@ int mythread_create(mythread_t * new_thread_ID,
 	  main_tcb->blockedForJoin = NULL;
 
 	  /* Get the main's tid and put it in its corresponding tcb. */
-	  pid_t tid;
 	  tid = gettid();
 	  main_tcb->tid = tid;
 
