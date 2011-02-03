@@ -9,6 +9,13 @@
 #include <futex.h>
 #include <mythread_q.h>
 
+#include <sys/syscall.h>
+#include <sys/types.h>
+
+static pid_t gettid(void) {
+  return (pid_t) syscall(SYS_gettid);
+}
+
 #define CLONE_SIGNAL            (CLONE_SIGHAND | CLONE_THREAD)
 
 int mythread_wrapper(void *);
@@ -46,6 +53,11 @@ int mythread_create(mythread_t * new_thread_ID,
 	  main_tcb->state = READY;
 	  main_tcb->returnValue = NULL;
 	  main_tcb->blockedForJoin = NULL;
+
+	  /* Get the main's tid and put it in its corresponding tcb. */
+	  pid_t tid;
+	  tid = gettid();
+	  main_tcb->tid = tid;
 
 	  /* Initialize futex to zero*/
 	  futex_init(&main_tcb->sched_futex, 0);
