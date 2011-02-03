@@ -16,6 +16,9 @@ void * mythread_idle(void *);
 
 mythread_t * mythread_q_head;
 
+mythread_t *idle_tcb;
+mythread_t *main_tcb;
+
 int mythread_create(mythread_t * new_thread_ID,
 		    mythread_attr_t * attr,
 		    void *(*start_func) (void *), void *arg)
@@ -37,7 +40,7 @@ int mythread_create(mythread_t * new_thread_ID,
 
 	  /* This is the very first mythread_create call. Set up the Q first with tcb nodes for main thread. */
 	  printf("Creating node for Main thread \n");
-	  mythread_t *main_tcb = (mythread_t *)malloc(sizeof(mythread_t));
+	  main_tcb = (mythread_t *)malloc(sizeof(mythread_t));
 	  main_tcb->start_func = NULL;
 	  main_tcb->args = NULL;
 	  main_tcb->state = READY;
@@ -52,7 +55,6 @@ int mythread_create(mythread_t * new_thread_ID,
 	  
 	  /* Now create the node for Idle thread. */
 	  printf("Creating node for Idle thread \n");
-	  mythread_t *idle_tcb;
 	  idle_tcb = (mythread_t *)malloc(sizeof(mythread_t));
 	  if(idle_tcb == NULL) {
 	    printf("malloc error!");
