@@ -19,8 +19,5 @@ mythread_t mythread_self()
   pid_t tid;
   tid = gettid();
 
-  mythread_t t;
-  t = *(mythread_q_search(tid));
-
-  return(t);
+  return *(mythread_q_search(tid));
 }

@@ -36,6 +36,7 @@ void mythread_q_add(mythread_t *node)
 void mythread_q_delete(mythread_t *node)
 {
 
+  mythread_t *p;
   if ( node == mythread_q_head && node->next == mythread_q_head ) {
     //There is only a single node and it is being deleted
     printf("The Q is now Empty!\n");
@@ -45,7 +46,6 @@ void mythread_q_delete(mythread_t *node)
   if ( node == mythread_q_head ) 
     mythread_q_head = node->next;
 
-  mythread_t *p;
   p = node->prev;
 
   p->next = node->next;
@@ -76,9 +76,9 @@ void mythread_q_state_display()
 mythread_t * mythread_q_search(unsigned long new_tid)
 {
 
+  mythread_t *p; 
   if (mythread_q_head != NULL) {
 
-    mythread_t *p; 
     p = mythread_q_head;
     do { //traverse to the last node in Q
       if ( p->tid == new_tid ) 

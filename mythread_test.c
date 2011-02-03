@@ -8,8 +8,11 @@ void *fun(void *arg)
 {
 	int *ptr = (int *)arg;
 	mythread_t t = mythread_self();
-	printf("Executed this: %d %ld\n", *ptr, (unsigned long)t.tid);
-	while (1) ;
+	//while(1) {
+		printf("Executed this: %d %ld\n", *ptr, (unsigned long)t.tid); fflush(stdout);
+		mythread_yield();
+	//}
+		mythread_exit(NULL);
 	return NULL;
 }
 
@@ -19,12 +22,13 @@ int main()
 	int a = 10;
   //mythread_attr_t p_attr;
   
-   mythread_create(&p[0], NULL , &fun, &a);
-
-	printf("Hurrayy!!!\n");
-   mythread_create(&p[1], NULL , &fun, &a);
-	printf("Hurrayy- parat!!!\n");
-	mythread_yield();
+   mythread_create(&p[0], NULL , fun, &a);
+   mythread_create(&p[1], NULL , fun, &a);
+	while(1) {
+		printf("I am main\n"); fflush(stdout);
+		mythread_yield();
+	}
+	mythread_exit(NULL);
 	while(1);
   /* int i;
   for(i=1;i<=10;i++) {

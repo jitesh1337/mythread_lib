@@ -2,15 +2,34 @@
 #include <malloc.h>
 #include <mythread_q.h>
 
-void mythread_exit(mythread_t *p)
+#include <sys/syscall.h>
+
+void __mythread_do_exit()
 {
-  mythread_q_delete(p);
-  mythread_q_state_display();
-  
-  mythread_t *q;
-  q = mythread_q_search(p->tid);
-  if (q == NULL)
-    printf("\n Node not present!");
-  else
-    printf("\n %d",p->state);
+	syscall(SYS_exit, 0);
+}
+
+/* A very basic exit implementation which doesn't even store the return value. 
+ * Partly because, mythread_self return a value instead of a pointer. 
+ * TODO: correct the implementation
+ */
+void mythread_exit(void *return_val)
+{
+	mythread_t self, *self_ptr, *next;
+	self = mythread_self();
+
+	self_ptr = mythread_q_search(self.tid);
+	next = self_ptr->next;
+
+	/* Don't remove the node from the list yet. We still have to collect the return value */
+	self_ptr->state = DEFUNCT;
+	self_ptr->returnValue = return_val;
+
+	printf("Waking up: %ld %d\n", (unsigned long)next->tid, next->sched_futex.count); fflush(stdout);
+	//futex_up(&next->sched_futex);
+	mythread_dispatcher(self_ptr);
+	
+	/* Wake up next thread in queue and kill ourself */
+	__mythread_do_exit();
+
 }

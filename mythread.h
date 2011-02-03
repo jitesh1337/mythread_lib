@@ -16,6 +16,7 @@
 #define RUNNING 0
 #define READY 1
 #define BLOCKED 2 //Waiting on Join
+#define DEFUNCT 3
 
 typedef struct mythread_attr {
   unsigned long stackSize;     //spwcify the stack size to be used by each thread
@@ -71,6 +72,8 @@ int mythread_join(mythread_t target_thread, void **status);
  * mythread_exit - exit thread, awakes joiners on return
  * from thread_func and dequeue itself from run Q before dispatching run->next
  */
-void mythread_exit(mythread_t *);
+void mythread_exit(void *retval);
+
+int mythread_dispatcher(mythread_t *);
 
 #endif /* MYTHREAD_H */

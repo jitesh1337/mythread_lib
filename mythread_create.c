@@ -25,6 +25,7 @@ mythread_t * mythread_q_head;
 
 mythread_t *idle_tcb;
 mythread_t *main_tcb;
+extern struct futex gfutex;
 
 int mythread_create(mythread_t * new_thread_ID,
 		    mythread_attr_t * attr,
@@ -60,6 +61,7 @@ int mythread_create(mythread_t * new_thread_ID,
 
 	  /* Initialize futex to zero*/
 	  futex_init(&main_tcb->sched_futex, 1);
+	  futex_init(&gfutex, 1);
 
 	  /* Put it in the Q of thread blocks */
 	  mythread_q_add(main_tcb);
@@ -87,6 +89,7 @@ int mythread_create(mythread_t * new_thread_ID,
 		printf("Exiting.....\n");
 		return (-ENOMEM);
 	}
+
 
 	/* We leave space for one invocation at the base of the stack */
 	child_stack = child_stack + stackSize - sizeof(sigset_t);
@@ -128,7 +131,9 @@ int mythread_wrapper(void *thread_tcb)
 	mythread_t *new_tcb;
 	new_tcb = (mythread_t *) thread_tcb;
 
+	printf("Wrapper: will sleep on futex: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count); fflush(stdout);
 	futex_down(&new_tcb->sched_futex);
+	printf("Wrapper: futex value: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count); fflush(stdout);
 	new_tcb->start_func(new_tcb->args);
 
 	/* Do a down on the futex corresponding to this tcb. */
@@ -145,7 +150,9 @@ int mythread_wrapper(void *thread_tcb)
 
 void * mythread_idle(void *phony)
 {
-  for(;;)
-    sched_yield();
+	while(1) {
+		printf("I am idle\n"); fflush(stdout);
+		mythread_yield();
+	}
 }
 
