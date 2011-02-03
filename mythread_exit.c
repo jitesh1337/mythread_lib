@@ -25,6 +25,9 @@ void mythread_exit(void *return_val)
 	self_ptr->state = DEFUNCT;
 	self_ptr->returnValue = return_val;
 
+	/* Change the state of any thread waiting on us */
+	self_ptr->blockedForJoin->state = READY;
+
 	printf("Waking up: %ld %d\n", (unsigned long)next->tid, next->sched_futex.count); fflush(stdout);
 	//futex_up(&next->sched_futex);
 	mythread_dispatcher(self_ptr);
