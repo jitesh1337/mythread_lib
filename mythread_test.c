@@ -21,6 +21,7 @@ int main()
 	int a = 10;
 	char *status;
   //mythread_attr_t p_attr;
+		futex_init(&debug_futex, 1);
   
    mythread_create(&p[0], NULL , fun, &a);
    mythread_create(&p[1], NULL , fun, &a);

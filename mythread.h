@@ -82,7 +82,10 @@ mythread_t *__mythread_selfptr();
 int mythread_dispatcher(mythread_t *);
 
 extern char debug_msg[1000];
-#define DEBUG_PRINTF(...) sprintf(debug_msg, __VA_ARGS__); \
-			write(1, debug_msg, strlen(debug_msg));
+extern struct futex debug_futex;
+#define DEBUG_PRINTF(...) futex_down(&debug_futex); \
+			sprintf(debug_msg, __VA_ARGS__); \
+			write(1, debug_msg, strlen(debug_msg)); \
+			futex_up(&debug_futex);
 
 #endif /* MYTHREAD_H */

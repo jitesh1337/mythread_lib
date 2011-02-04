@@ -23,6 +23,7 @@ mythread_t * mythread_q_head;
 mythread_t *idle_tcb;
 mythread_t *main_tcb;
 extern struct futex gfutex;
+struct futex debug_futex;
 
 static void __mythread_add_main_tcb()
 {
