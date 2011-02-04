@@ -58,6 +58,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	/* pointer to the stack used by the child process to be created by clone later */
 	char *child_stack;
 	unsigned long stackSize;
+	mythread_t *new_node;
 	pid_t tid;
 
 	/* Flags to be passed to clone system call. 
@@ -84,6 +85,16 @@ int mythread_create(mythread_t * new_thread_ID,
 		mythread_create(idle_tcb, NULL, mythread_idle, NULL);
 	}
 
+	/* Crazy bit: in 2.6.35, all threads can access main thread's stack, but
+	 * on the OS machine, this stack is somehow private to main thread only. 
+	 * may be some clone flag? Work around that
+	 */
+	new_node = (mythread_t *)malloc(sizeof(mythread_t));
+	if (new_node == NULL) {
+		DEBUG_PRINTF("Cannot allocate memory for node\n");
+		exit(1);
+	}
+
 	/*Stack-size argument is not provided */
 	if (attr == NULL)
 		stackSize = SIGSTKSZ;
@@ -102,29 +113,30 @@ int mythread_create(mythread_t * new_thread_ID,
 	child_stack = child_stack + stackSize - sizeof(sigset_t);
 
 	/* Save the thread_fun pointer and the pointer to arguments in the TCB. */
-	new_thread_ID->start_func = start_func;
-	new_thread_ID->args = arg;
+	new_node->start_func = start_func;
+	new_node->args = arg;
 	/* Set the state as READY - READY in Q, waiting to be scheduled. */
-	new_thread_ID->state = READY;
+	new_node->state = READY;
 
-	new_thread_ID->returnValue = NULL;
-	new_thread_ID->blockedForJoin = NULL;
+	new_node->returnValue = NULL;
+	new_node->blockedForJoin = NULL;
 	/* Initialize the tcb's sched_futex to zero. */
-	futex_init(&new_thread_ID->sched_futex, 0);
+	futex_init(&new_node->sched_futex, 0);
 
 	/* Put it in the Q of thread blocks */
-	mythread_q_add(new_thread_ID);
+	mythread_q_add(new_node);
 
 	/* Call clone with pointer to wrapper function. TCB will be passed as arg to wrapper function. */
 	if ((tid =
 	     clone(mythread_wrapper, (char *)child_stack, clone_flags,
-		   new_thread_ID)) == -1) {
+		   new_node)) == -1) {
 		printf("clone failed! \n");
 		printf("ERROR: %s \n", strerror(errno));
 		return (-errno);
 	}
 	/* Save the tid returned by clone system call in the tcb. */
 	new_thread_ID->tid = tid;
+	new_node->tid = tid;
 
 	DEBUG_PRINTF("create: Finished initialising new thread: %ld\n", (unsigned long)new_thread_ID->tid);
 	return 0;
