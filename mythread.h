@@ -77,6 +77,8 @@ void mythread_exit(void *retval);
 
 /* Private functions */
 pid_t __mythread_gettid();
+mythread_t *__mythread_selfptr();
+
 int mythread_dispatcher(mythread_t *);
 
 extern char debug_msg[1000];

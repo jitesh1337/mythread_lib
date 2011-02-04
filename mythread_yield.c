@@ -30,7 +30,7 @@ int mythread_yield()
 	mythread_t *self;
 	int retval;
 
-	self = mythread_q_search(__mythread_gettid());
+	self = __mythread_selfptr();
 
 	//if (self->next->tid == self->tid) /* Only one thread */
 	//	return 0;

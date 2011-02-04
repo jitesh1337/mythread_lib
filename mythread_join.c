@@ -6,7 +6,7 @@ int mythread_join(mythread_t target_thread, void **status)
 {
 	mythread_t *target, *self_ptr;
 	
-	self_ptr = mythread_q_search(__mythread_gettid());
+	self_ptr = __mythread_selfptr();
 	DEBUG_PRINTF("Join: Got tid: %ld\n", (unsigned long)self_ptr->tid);
 	target = mythread_q_search(target_thread.tid);
 

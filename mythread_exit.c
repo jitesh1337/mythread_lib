@@ -4,7 +4,7 @@
 
 #include <sys/syscall.h>
 
-void __mythread_do_exit()
+static void __mythread_do_exit()
 {
 	syscall(SYS_exit, 0);
 }
@@ -15,11 +15,10 @@ void __mythread_do_exit()
  */
 void mythread_exit(void *return_val)
 {
-	mythread_t self, *self_ptr, *next;
-	self = mythread_self();
+	mythread_t *self_ptr;
 
-	self_ptr = mythread_q_search(self.tid);
-	next = self_ptr->next;
+	/* Get pointer to our TCB structure */
+	self_ptr = __mythread_selfptr();
 
 	/* Don't remove the node from the list yet. We still have to collect the return value */
 	self_ptr->state = DEFUNCT;
