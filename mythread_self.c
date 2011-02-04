@@ -10,14 +10,10 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
   
-static pid_t gettid(void) {
-  return (pid_t) syscall(SYS_gettid);
-}
-
 mythread_t mythread_self()
 {
   pid_t tid;
-  tid = gettid();
+  tid = __mythread_gettid();
 
   return *(mythread_q_search(tid));
 }

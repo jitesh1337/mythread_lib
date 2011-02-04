@@ -75,6 +75,8 @@ int mythread_join(mythread_t target_thread, void **status);
  */
 void mythread_exit(void *retval);
 
+/* Private functions */
+pid_t __mythread_gettid();
 int mythread_dispatcher(mythread_t *);
 
 extern char debug_msg[1000];

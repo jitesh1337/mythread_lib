@@ -2,16 +2,11 @@
 #include <mythread_q.h>
 #include <sys/syscall.h>
 
-pid_t gettid()
-{
-	return (pid_t)syscall(SYS_gettid);
-}
-
 int mythread_join(mythread_t target_thread, void **status)
 {
 	mythread_t *target, *self_ptr;
 	
-	self_ptr = mythread_q_search(gettid());
+	self_ptr = mythread_q_search(__mythread_gettid());
 	DEBUG_PRINTF("Join: Got tid: %ld\n", (unsigned long)self_ptr->tid);
 	target = mythread_q_search(target_thread.tid);
 

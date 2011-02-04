@@ -8,11 +8,6 @@ struct futex gfutex;
 
 char debug_msg[1000];
 
-static pid_t gettid()
-{
-	return (pid_t) syscall(SYS_gettid);
-}
-
 int mythread_dispatcher(mythread_t *node)
 {
 	mythread_t *ptr = node->next;
@@ -35,7 +30,7 @@ int mythread_yield()
 	mythread_t *self;
 	int retval;
 
-	self = mythread_q_search(gettid());
+	self = mythread_q_search(__mythread_gettid());
 
 	//if (self->next->tid == self->tid) /* Only one thread */
 	//	return 0;

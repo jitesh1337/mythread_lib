@@ -1,7 +1,7 @@
 # This Makefile is a part of a thread library project at NCSU
 # Members: Jitesh Shah, Salil Kanitkar, Aditya Jalgaonkar
 
-SRCS =  futex.c mythread_q.c mythread_create.c mythread_exit.c mythread_self.c mythread_yield.c mythread_exit.c mythread_join.c
+SRCS =  futex.c mythread_q.c mythread_create.c mythread_exit.c mythread_self.c mythread_yield.c mythread_exit.c mythread_join.c mythread_utilities.c
 OBJS = $(SRCS:.c=.o)
 TEST_SRCS = mythread_test.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
