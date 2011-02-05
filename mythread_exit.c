@@ -30,7 +30,7 @@ void mythread_exit(void *return_val)
 
 	//futex_up(&next->sched_futex);
 	mythread_dispatcher(self_ptr);
-	
+
 	/* Wake up next thread in queue and kill ourself */
 	__mythread_do_exit();
 

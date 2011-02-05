@@ -16,25 +16,23 @@
 #define CLONE_SIGNAL            (CLONE_SIGHAND | CLONE_THREAD)
 
 int mythread_wrapper(void *);
-void * mythread_idle(void *);
+void *mythread_idle(void *);
 
-mythread_private_t * mythread_q_head;
+mythread_private_t *mythread_q_head;
 
-mythread_t idle_tcb;
 mythread_private_t *main_tcb;
-mythread_private_t *traverse_tcb;
 
 mythread_t idle_u_tcb;
 
 extern struct futex gfutex;
 
-static void __mythread_add_main_tcb()
+static int __mythread_add_main_tcb()
 {
 	DEBUG_PRINTF("add_main_tcb: Creating node for Main thread \n");
-	main_tcb = (mythread_private_t *)malloc(sizeof(mythread_private_t));
+	main_tcb = (mythread_private_t *) malloc(sizeof(mythread_private_t));
 	if (main_tcb == NULL) {
 		ERROR_PRINTF("add_main_tcb: Error allocating memory for main node\n");
-		exit(1);
+		return -ENOMEM;
 	}
 
 	main_tcb->start_func = NULL;
@@ -46,11 +44,12 @@ static void __mythread_add_main_tcb()
 	/* Get the main's tid and put it in its corresponding tcb. */
 	main_tcb->tid = __mythread_gettid();
 
-	/* Initialize futex to zero*/
+	/* Initialize futex to zero */
 	futex_init(&main_tcb->sched_futex, 1);
 
 	/* Put it in the Q of thread blocks */
 	mythread_q_add(main_tcb);
+	return 0;
 }
 
 int mythread_create(mythread_t * new_thread_ID,
@@ -63,6 +62,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	unsigned long stackSize;
 	mythread_private_t *new_node;
 	pid_t tid;
+	int retval;
 
 	/* Flags to be passed to clone system call. 
 	   This flags variable is picked up from pthread source code. 
@@ -73,12 +73,14 @@ int mythread_create(mythread_t * new_thread_ID,
 
 	if (mythread_q_head == NULL) {
 		/* This is the very first mythread_create call. Set up the Q first with tcb nodes for main thread. */
-		__mythread_add_main_tcb();
+		retval = __mythread_add_main_tcb();
+		if (retval != 0)
+			return retval;
 
 		/* Initialise the global futex */
 		futex_init(&gfutex, 1);
 
-	  	/* Now create the node for Idle thread. */
+		/* Now create the node for Idle thread. */
 		DEBUG_PRINTF("create: creating node for Idle thread \n");
 		mythread_create(&idle_u_tcb, NULL, mythread_idle, NULL);
 	}
@@ -87,10 +89,10 @@ int mythread_create(mythread_t * new_thread_ID,
 	 * on the OS machine, this stack is somehow private to main thread only. 
 	 * may be some clone flag? Work around that
 	 */
-	new_node = (mythread_private_t *)malloc(sizeof(mythread_private_t));
+	new_node = (mythread_private_t *) malloc(sizeof(mythread_private_t));
 	if (new_node == NULL) {
 		ERROR_PRINTF("Cannot allocate memory for node\n");
-		exit(1);
+		return -ENOMEM;
 	}
 
 	/*Stack-size argument is not provided */
@@ -101,11 +103,9 @@ int mythread_create(mythread_t * new_thread_ID,
 
 	/* posix_memalign aligns the allocated memory at a 64-bit boundry. */
 	if (posix_memalign((void **)&child_stack, 8, stackSize)) {
-		printf("posix_memalign failed! \n");
-		printf("Exiting.....\n");
-		return (-ENOMEM);
+		ERROR_PRINTF("posix_memalign failed! \n");
+		return -ENOMEM;
 	}
-
 
 	/* We leave space for one invocation at the base of the stack */
 	child_stack = child_stack + stackSize - sizeof(sigset_t);
@@ -136,43 +136,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	new_thread_ID->tid = tid;
 	new_node->tid = tid;
 
-	DEBUG_PRINTF("create: Finished initialising new thread: %ld\n", (unsigned long)new_thread_ID->tid);
+	DEBUG_PRINTF("create: Finished initialising new thread: %ld\n",
+		     (unsigned long)new_thread_ID->tid);
 	return 0;
 }
-
-int mythread_wrapper(void *thread_tcb)
-{
-	mythread_private_t *new_tcb;
-	new_tcb = (mythread_private_t *)thread_tcb;
-
-	DEBUG_PRINTF("Wrapper: will sleep on futex: %ld %d\n", (unsigned long)__mythread_gettid(), new_tcb->sched_futex.count);
-	futex_down(&new_tcb->sched_futex);
-	DEBUG_PRINTF("Wrapper: futex value: %ld %d\n", (unsigned long)new_tcb->tid, new_tcb->sched_futex.count);
-	new_tcb->start_func(new_tcb->args);
-
-	/* Ideally we shouldn't reach here */
-	return 0;
-}
-
-void * mythread_idle(void *phony)
-{
-	while(1) {
-		DEBUG_PRINTF("I am idle\n");
-		traverse_tcb = __mythread_selfptr();
-		idle_tcb.tid = traverse_tcb->tid;
-                traverse_tcb = traverse_tcb->next;
-
-                while ( traverse_tcb->tid != idle_tcb.tid ) {
-                  if ( traverse_tcb->state != DEFUNCT ) {
-                    break;
-                  }
-                  traverse_tcb = traverse_tcb->next;
-                }
-                
-                if ( traverse_tcb->tid == idle_tcb.tid )
-                  exit(1);
-     
-		mythread_yield();
-	}
-}
-
