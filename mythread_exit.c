@@ -15,7 +15,7 @@ static void __mythread_do_exit()
  */
 void mythread_exit(void *return_val)
 {
-	mythread_t *self_ptr;
+	mythread_private_t *self_ptr;
 
 	/* Get pointer to our TCB structure */
 	self_ptr = __mythread_selfptr();

@@ -6,7 +6,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<futex.h>
-#include <string.h>
+#include<string.h>
 
 #ifndef MYTHREAD_H
 #define MYTHREAD_H
@@ -23,21 +23,28 @@ typedef struct mythread_attr {
   unsigned long stackSize;     //spwcify the stack size to be used by each thread
 }mythread_attr_t;
 
-/* Thread Control Block structure */
+/* Thread Control Block structure exposed to the user */
 typedef struct mythread {
+
+  pid_t tid; //the thread-id of the thread
+
+}mythread_t;
+
+/* The Actual Thread Control Block structure */
+typedef struct mythread_private {
 
   pid_t tid; //the thread-id of the thread
   int state; //the state in which the corresponding thread will be.
   void * (*start_func) (void *); //the func pointer to the thread function to be executed.
   void *args; //the arguments to be passed to the thread function.
   void *returnValue; //the return value that thread returns.
-  struct mythread *blockedForJoin; //
+  struct mythread_private *blockedForJoin; //
   struct futex sched_futex; //
-  struct mythread *prev, *next; //pointers to traverse the tcb DLL
+  struct mythread_private *prev, *next; //pointers to traverse the tcb DLL
 
-}mythread_t;
+}mythread_private_t;
 
-extern mythread_t *mythread_q_head; //the pointer pointing to head node of the tcb q
+extern mythread_private_t *mythread_q_head; //the pointer pointing to head node of the tcb q
 /* add your code here */
 
 /*
@@ -77,9 +84,9 @@ void mythread_exit(void *retval);
 
 /* Private functions */
 pid_t __mythread_gettid();
-mythread_t *__mythread_selfptr();
+mythread_private_t *__mythread_selfptr();
 
-int mythread_dispatcher(mythread_t *);
+int mythread_dispatcher(mythread_private_t *);
 
 extern char debug_msg[1000];
 extern struct futex debug_futex;

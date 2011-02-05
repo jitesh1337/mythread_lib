@@ -18,11 +18,13 @@
 int mythread_wrapper(void *);
 void * mythread_idle(void *);
 
-mythread_t * mythread_q_head;
+mythread_private_t * mythread_q_head;
 
-mythread_t *idle_tcb;
-mythread_t *main_tcb;
-mythread_t *traverse_tcb;
+mythread_t idle_tcb;
+mythread_private_t *main_tcb;
+mythread_private_t *traverse_tcb;
+
+mythread_t idle_u_tcb;
 
 extern struct futex gfutex;
 struct futex debug_futex;
@@ -30,7 +32,7 @@ struct futex debug_futex;
 static void __mythread_add_main_tcb()
 {
 	DEBUG_PRINTF("add_main_tcb: Creating node for Main thread \n");
-	main_tcb = (mythread_t *)malloc(sizeof(mythread_t));
+	main_tcb = (mythread_private_t *)malloc(sizeof(mythread_private_t));
 	if (main_tcb == NULL) {
 		DEBUG_PRINTF("add_main_tcb: Error allocating memory for main node\n");
 		exit(1);
@@ -60,7 +62,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	/* pointer to the stack used by the child process to be created by clone later */
 	char *child_stack;
 	unsigned long stackSize;
-	mythread_t *new_node;
+	mythread_private_t *new_node;
 	pid_t tid;
 
 	/* Flags to be passed to clone system call. 
@@ -79,19 +81,14 @@ int mythread_create(mythread_t * new_thread_ID,
 
 	  	/* Now create the node for Idle thread. */
 		DEBUG_PRINTF("create: creating node for Idle thread \n");
-		idle_tcb = (mythread_t *)malloc(sizeof(mythread_t));
-		if(idle_tcb == NULL) {
-			DEBUG_PRINTF("create: malloc error while allocating memory to idle node!");
-	  		exit(1);
-		}
-		mythread_create(idle_tcb, NULL, mythread_idle, NULL);
+		mythread_create(&idle_u_tcb, NULL, mythread_idle, NULL);
 	}
 
 	/* Crazy bit: in 2.6.35, all threads can access main thread's stack, but
 	 * on the OS machine, this stack is somehow private to main thread only. 
 	 * may be some clone flag? Work around that
 	 */
-	new_node = (mythread_t *)malloc(sizeof(mythread_t));
+	new_node = (mythread_private_t *)malloc(sizeof(mythread_private_t));
 	if (new_node == NULL) {
 		DEBUG_PRINTF("Cannot allocate memory for node\n");
 		exit(1);
@@ -146,8 +143,8 @@ int mythread_create(mythread_t * new_thread_ID,
 
 int mythread_wrapper(void *thread_tcb)
 {
-	mythread_t *new_tcb;
-	new_tcb = (mythread_t *)thread_tcb;
+	mythread_private_t *new_tcb;
+	new_tcb = (mythread_private_t *)thread_tcb;
 
 	DEBUG_PRINTF("Wrapper: will sleep on futex: %ld %d\n", (unsigned long)__mythread_gettid(), new_tcb->sched_futex.count);
 	futex_down(&new_tcb->sched_futex);
@@ -163,10 +160,10 @@ void * mythread_idle(void *phony)
 	while(1) {
 		DEBUG_PRINTF("I am idle\n"); fflush(stdout);
 		traverse_tcb = __mythread_selfptr();
-
+		idle_tcb.tid = traverse_tcb->tid;
                 traverse_tcb = traverse_tcb->next;
 
-                while ( traverse_tcb->tid != idle_tcb->tid ) {
+                while ( traverse_tcb->tid != idle_tcb.tid ) {
                   if ( traverse_tcb->state != DEFUNCT ) {
                     //DEBUG_PRINTF("State -> %d, Tid -> %ld",traverse_tcb->state, (unsigned long)traverse_tcb->tid);
                     break;
@@ -174,7 +171,7 @@ void * mythread_idle(void *phony)
                   traverse_tcb = traverse_tcb->next;
                 }
                 
-                if ( traverse_tcb->tid == idle_tcb->tid )
+                if ( traverse_tcb->tid == idle_tcb.tid )
                   exit(1);
      
 		mythread_yield();

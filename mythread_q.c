@@ -1,10 +1,10 @@
 #include<mythread.h>
 
-mythread_t *mythread_q_head;
+mythread_private_t *mythread_q_head;
 
 /*
 */
-void mythread_q_init(mythread_t *node)
+void mythread_q_init(mythread_private_t *node)
 {
 
   node->prev = node;
@@ -14,7 +14,7 @@ void mythread_q_init(mythread_t *node)
 
 }
 
-void mythread_q_add(mythread_t *node)
+void mythread_q_add(mythread_private_t *node)
 {
 
   if ( mythread_q_head == NULL ) {
@@ -33,10 +33,10 @@ void mythread_q_add(mythread_t *node)
 
 }
 
-void mythread_q_delete(mythread_t *node)
+void mythread_q_delete(mythread_private_t *node)
 {
 
-  mythread_t *p;
+  mythread_private_t *p;
   if ( node == mythread_q_head && node->next == mythread_q_head ) {
     //There is only a single node and it is being deleted
     printf("The Q is now Empty!\n");
@@ -62,7 +62,7 @@ void mythread_q_state_display()
 
     //display the Q - for debug purposes
     printf("\n The Q contents are -> \n");
-    mythread_t *p; 
+    mythread_private_t *p; 
     p = mythread_q_head;
     do { //traverse to the last node in Q
       printf(" %d\n",p->state);
@@ -73,10 +73,10 @@ void mythread_q_state_display()
 
 }
 
-mythread_t * mythread_q_search(unsigned long new_tid)
+mythread_private_t * mythread_q_search(unsigned long new_tid)
 {
 
-  mythread_t *p; 
+  mythread_private_t *p; 
   if (mythread_q_head != NULL) {
 
     p = mythread_q_head;

@@ -8,9 +8,9 @@ struct futex gfutex;
 
 char debug_msg[1000];
 
-int mythread_dispatcher(mythread_t *node)
+int mythread_dispatcher(mythread_private_t *node)
 {
-	mythread_t *ptr = node->next;
+	mythread_private_t *ptr = node->next;
 	while(ptr->state != READY)
 		ptr = ptr->next;
 
@@ -27,7 +27,7 @@ int mythread_dispatcher(mythread_t *node)
 /* Basic yield. It will get more complex when we add join */
 int mythread_yield()
 {
-	mythread_t *self;
+	mythread_private_t *self;
 	int retval;
 
 	self = __mythread_selfptr();
