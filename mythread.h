@@ -85,12 +85,31 @@ void mythread_exit(void *retval);
 /* Private functions */
 pid_t __mythread_gettid();
 mythread_private_t *__mythread_selfptr();
+void __mythread_debug_futex_init();
 
 int mythread_dispatcher(mythread_private_t *);
 
 extern char debug_msg[1000];
 extern struct futex debug_futex;
-#define DEBUG_PRINTF(...) futex_down(&debug_futex); \
+
+#ifdef DEBUG
+#define DEBUG_PRINTF(...) __mythread_debug_futex_init(); \
+			futex_down(&debug_futex); \
+			sprintf(debug_msg, __VA_ARGS__); \
+			write(1, debug_msg, strlen(debug_msg)); \
+			futex_up(&debug_futex);
+#else
+#define DEBUG_PRINTF(...) do {} while(0);
+#endif
+
+#define ERROR_PRINTF(...) __mythread_debug_futex_init(); \
+			futex_down(&debug_futex); \
+			sprintf(debug_msg, __VA_ARGS__); \
+			write(1, debug_msg, strlen(debug_msg)); \
+			futex_up(&debug_futex);
+
+#define LOG_PRINTF(...) __mythread_debug_futex_init(); \
+			futex_down(&debug_futex); \
 			sprintf(debug_msg, __VA_ARGS__); \
 			write(1, debug_msg, strlen(debug_msg)); \
 			futex_up(&debug_futex);

@@ -27,14 +27,13 @@ mythread_private_t *traverse_tcb;
 mythread_t idle_u_tcb;
 
 extern struct futex gfutex;
-struct futex debug_futex;
 
 static void __mythread_add_main_tcb()
 {
 	DEBUG_PRINTF("add_main_tcb: Creating node for Main thread \n");
 	main_tcb = (mythread_private_t *)malloc(sizeof(mythread_private_t));
 	if (main_tcb == NULL) {
-		DEBUG_PRINTF("add_main_tcb: Error allocating memory for main node\n");
+		ERROR_PRINTF("add_main_tcb: Error allocating memory for main node\n");
 		exit(1);
 	}
 
@@ -90,7 +89,7 @@ int mythread_create(mythread_t * new_thread_ID,
 	 */
 	new_node = (mythread_private_t *)malloc(sizeof(mythread_private_t));
 	if (new_node == NULL) {
-		DEBUG_PRINTF("Cannot allocate memory for node\n");
+		ERROR_PRINTF("Cannot allocate memory for node\n");
 		exit(1);
 	}
 
@@ -158,14 +157,13 @@ int mythread_wrapper(void *thread_tcb)
 void * mythread_idle(void *phony)
 {
 	while(1) {
-		DEBUG_PRINTF("I am idle\n"); fflush(stdout);
+		DEBUG_PRINTF("I am idle\n");
 		traverse_tcb = __mythread_selfptr();
 		idle_tcb.tid = traverse_tcb->tid;
                 traverse_tcb = traverse_tcb->next;
 
                 while ( traverse_tcb->tid != idle_tcb.tid ) {
                   if ( traverse_tcb->state != DEFUNCT ) {
-                    //DEBUG_PRINTF("State -> %d, Tid -> %ld",traverse_tcb->state, (unsigned long)traverse_tcb->tid);
                     break;
                   }
                   traverse_tcb = traverse_tcb->next;
