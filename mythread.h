@@ -85,9 +85,8 @@ void mythread_exit(void *retval);
 /* Private functions */
 pid_t __mythread_gettid();
 mythread_private_t *__mythread_selfptr();
+int __mythread_dispatcher(mythread_private_t *);
 void __mythread_debug_futex_init();
-
-int mythread_dispatcher(mythread_private_t *);
 
 extern char debug_msg[1000];
 extern struct futex debug_futex;

@@ -6,6 +6,8 @@
 struct futex debug_futex;
 static int debug_futex_init_done = 0;
 
+char debug_msg[1000];
+
 pid_t __mythread_gettid()
 {
 	return (pid_t) syscall(SYS_gettid);
