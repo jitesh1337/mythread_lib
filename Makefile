@@ -1,5 +1,10 @@
-# This Makefile is a part of a thread library project at NCSU
-# Members: Jitesh Shah, Salil Kanitkar, Aditya Jalgaonkar
+# Single Author info:
+# 	jhshah 	Jitesh H Shah
+# Group info:
+# 	jhshah	Jitesh H Shah
+# 	salilk	Salil S Kanitkar
+# 	ajalgao	Aditya A Jalgaonkar
+#
 
 SRCS =  futex.c mythread_q.c mythread_create.c mythread_exit.c mythread_self.c mythread_yield.c mythread_exit.c mythread_join.c mythread_utilities.c mythread_wrapper.c mythread_idle.c
 INC = futex.h  futex_inline.h  myatomic.h  mythread.h  mythread_q.h
