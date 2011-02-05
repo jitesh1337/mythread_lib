@@ -2,6 +2,14 @@
  * mythread.h -- interface of user threads library
  */
 
+/* Single Author info:
+ * 	ajalgao	Aditya A Jalgaonkar
+ * Group info:
+ * 	jhshah	Jitesh H Shah
+ * 	salilk	Salil S Kanitkar
+ * 	ajalgao	Aditya A Jalgaonkar
+ */
+
 #include<malloc.h>
 #include<stdio.h>
 #include<stdlib.h>
@@ -15,36 +23,34 @@
 #define TRUE 1
 
 #define RUNNING 0
-#define READY 1
-#define BLOCKED 2 //Waiting on Join
-#define DEFUNCT 3
+#define READY 	1 /* Ready to be scheduled */
+#define BLOCKED 2 /* Waiting on Join */
+#define DEFUNCT 3 /* Dead */
 
 typedef struct mythread_attr {
-  unsigned long stackSize;     //spwcify the stack size to be used by each thread
+  unsigned long stackSize;     /* Stack size to be used by this thread. Default is SIGSTKSZ */
 }mythread_attr_t;
 
-/* Thread Control Block structure exposed to the user */
+/* Thread Handle exposed to the user */
 typedef struct mythread {
-
-  pid_t tid; //the thread-id of the thread
-
+  pid_t tid; /* The thread-id of the thread */
 }mythread_t;
 
 /* The Actual Thread Control Block structure */
 typedef struct mythread_private {
 
-  pid_t tid; //the thread-id of the thread
-  int state; //the state in which the corresponding thread will be.
-  void * (*start_func) (void *); //the func pointer to the thread function to be executed.
-  void *args; //the arguments to be passed to the thread function.
-  void *returnValue; //the return value that thread returns.
-  struct mythread_private *blockedForJoin; //
-  struct futex sched_futex; //
-  struct mythread_private *prev, *next; //pointers to traverse the tcb DLL
+  pid_t tid; 				/* The thread-id of the thread */
+  int state; 				/* the state in which the corresponding thread will be. */
+  void * (*start_func) (void *); 	/* The func pointer to the thread function to be executed. */
+  void *args; 				/* The arguments to be passed to the thread function. */
+  void *returnValue; 			/* The return value that thread returns. */
+  struct mythread_private *blockedForJoin; 	/* Thread blocking on this thread */
+  struct futex sched_futex;		/* Futex used by the dispatcher to schedule this thread */
+  struct mythread_private *prev, *next; 
 
 }mythread_private_t;
 
-extern mythread_private_t *mythread_q_head; //the pointer pointing to head node of the tcb q
+extern mythread_private_t *mythread_q_head; /* The pointer pointing to head node of the TCB queue */
 /* add your code here */
 
 /*
@@ -83,11 +89,18 @@ int mythread_join(mythread_t target_thread, void **status);
 void mythread_exit(void *retval);
 
 /* Private functions */
+
+/* Get the tid of the current thread */
 pid_t __mythread_gettid();
+
+/* Get the pointer to the private structure of this thread */
 mythread_private_t *__mythread_selfptr();
+
+/* Dispatcher - The thread scheduler */
 int __mythread_dispatcher(mythread_private_t *);
 void __mythread_debug_futex_init();
 
+/* Debugging stuff */
 extern char debug_msg[1000];
 extern struct futex debug_futex;
 
