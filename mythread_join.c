@@ -50,7 +50,5 @@ int mythread_join(mythread_t target_thread, void **status)
 
 	/* Target thread died, collect return value and return */
 	*status = target->returnValue;
-
-	/* TODO: delete the node? */
 	return 0;
 }
