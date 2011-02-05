@@ -22,6 +22,8 @@ mythread_t * mythread_q_head;
 
 mythread_t *idle_tcb;
 mythread_t *main_tcb;
+mythread_t *traverse_tcb;
+
 extern struct futex gfutex;
 struct futex debug_futex;
 
@@ -160,6 +162,21 @@ void * mythread_idle(void *phony)
 {
 	while(1) {
 		DEBUG_PRINTF("I am idle\n"); fflush(stdout);
+		traverse_tcb = __mythread_selfptr();
+
+                traverse_tcb = traverse_tcb->next;
+
+                while ( traverse_tcb->tid != idle_tcb->tid ) {
+                  if ( traverse_tcb->state != DEFUNCT ) {
+                    //DEBUG_PRINTF("State -> %d, Tid -> %ld",traverse_tcb->state, (unsigned long)traverse_tcb->tid);
+                    break;
+                  }
+                  traverse_tcb = traverse_tcb->next;
+                }
+                
+                if ( traverse_tcb->tid == idle_tcb->tid )
+                  exit(1);
+     
 		mythread_yield();
 	}
 }

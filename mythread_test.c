@@ -8,10 +8,11 @@ void *fun(void *arg)
 {
 	int *ptr = (int *)arg;
 	mythread_t t = mythread_self();
-	while(1) {
+	//while(1) {
 		DEBUG_PRINTF("Executed this: %d %ld\n", *ptr, (unsigned long)t.tid); fflush(stdout);
 		mythread_yield();
-	}
+		//}
+	mythread_exit(NULL);
 	return NULL;
 }
 
@@ -27,12 +28,12 @@ int main()
    mythread_create(&p[1], NULL , fun, &a);
 	mythread_join(p[0], (void **)&status);
 	mythread_join(p[1], (void **)&status);
-	while(1) {
+	//	while(1) {
 		DEBUG_PRINTF("I am main\n"); fflush(stdout);
 		mythread_yield();
-	}
+		//}
 	mythread_exit(NULL);
-	while(1);
+	//while(1);
   /* int i;
   for(i=1;i<=10;i++) {
     p[i].state = i;
