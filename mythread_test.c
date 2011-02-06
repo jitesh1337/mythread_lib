@@ -1,61 +1,57 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+/* Single Author info:
+ * 	ajalgao	Aditya A Jalgaonkar
+ * Group info:
+ * 	jhshah	Jitesh H Shah
+ * 	salilk	Salil S Kanitkar
+ * 	ajalgao	Aditya A Jalgaonkar
+ */
 
-#include<mythread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-void *fun(void *arg)
+#include <mythread.h>
+
+/* Number of threads to start */
+#define NTHREADS	8
+
+/* This function will first increment count by 50, yield. When it gets the 
+ * control back, it will increment count again and then exit
+ */
+void *thread_func(void *arg)
 {
-	//while(1) {
-	DEBUG_PRINTF("Executed this: %d %ld\n", *(int *)arg,
-		     (unsigned long)(mythread_self().tid));
+	int *count = (int *)arg;
+
+	*count = *count + 50;
+	LOG_PRINTF("Thread %ld: Incremented count by 50 and will now yield\n", (unsigned long)mythread_self().tid);
 	mythread_yield();
-	//}
+	*count = *count + 50;
+	LOG_PRINTF("Thread %ld: Incremented count by 50 and will now exit\n", (unsigned long)mythread_self().tid);
 	mythread_exit(NULL);
 	return NULL;
 }
 
+/* This is a simple demonstration of how to use the mythread library.
+ * Start NTRHEADS number of threads, collect count value and exit
+ */
 int main()
 {
-	mythread_t p[20];
-	int a = 10;
+	mythread_t threads[NTHREADS];
+	int count[NTHREADS];
+	int i;
 	char *status;
 
-	mythread_create(&p[0], NULL, fun, &a);
-	mythread_create(&p[1], NULL, fun, &a);
-	mythread_join(p[0], (void **)&status);
-	mythread_join(p[1], (void **)&status);
-	//      while(1) {
-	DEBUG_PRINTF("I am main\n");
-	mythread_yield();
-	//}
+	for (i = 0; i < NTHREADS; i++) {
+		count[i] = i;
+		mythread_create(&threads[i], NULL, thread_func, &count[i]);
+	}
+	for (i = 0; i < NTHREADS; i++) {
+		LOG_PRINTF("Main: Will now wait for thread %ld. Yielding..\n", (unsigned long)threads[i].tid);
+		mythread_join(threads[i], (void **)&status);
+		LOG_PRINTF("Main: Thread %ld exited and increment count to %d\n", (unsigned long)threads[i].tid, count[i]);
+	}
+	LOG_PRINTF("Main: All threads completed execution. Will now exit..\n");
 	mythread_exit(NULL);
-	//while(1);
-	/* int i;
-	   for(i=1;i<=10;i++) {
-	   p[i].state = i;
-	   p[i].tid = (unsigned long)i;
-	   mythread_create(&p[i], NULL , &fun, NULL);
-	   }
-
-	   mythread_exit(&p[5]);
-	   mythread_exit(&p[2]);
-	   mythread_exit(&p[6]);
-	   mythread_exit(&p[9]);
-	   mythread_exit(&p[10]);
-	   mythread_exit(&p[3]);
-	   mythread_exit(&p[8]);
-	   mythread_exit(&p[7]);
-	   mythread_exit(&p[1]);
-	   mythread_exit(&p[4]);
-
-	   for(i=12;i<=18;i++) {
-	   p[i].state = i;
-	   p[i].tid = i;
-	   mythread_create(&p[i],&p_attr,NULL,NULL);
-	   }
-
-	   mythread_exit(&p[15]); */
 
 	return 0;
 }
