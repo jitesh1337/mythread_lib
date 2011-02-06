@@ -1,80 +1,129 @@
-Project Title      : Implementation of a non-preemptive user-level thread library - mythread.
+What is mythread_lib?
+---------------------
+Implementation of a non-preemptive user-level thread library - mythread.
 
-Aim of the Project : Provide a statically linked user-level thread library which provides following functions -
-                     1. mythread_create()
-                     2. mythread_self()
-                     3. mythread_join()
-                     4. mythread_yield()
-                     5. mythread_exit()
-		     The methods have the same signature as their counterparts in pthread (POSIX-thread) library.
-		     We also implement a simple FIFO(First Come First Served) based scheduling policy with one 
-		     running thread (a single processor) using a doubly linked queue of threads, including an idle thread. 
 
-Members            : Jitesh Shah       - jhshah
-		     Salil Kanitkar    - sskanitk
-		     Aditya Jalgaonkar - ajalgao
+Aim/Assumptions and interface:
+----------------------------- 
+Provide a statically linked user-level thread library which provides following 
+functions:
+1. mythread_create()
+2. mythread_self()
+3. mythread_join()
+4. mythread_yield()
+5. mythread_exit()
+The methods have the same signature as their counterparts in pthread 
+(POSIX-thread) library. We also implement a simple FIFO (First In 
+First Out) based scheduling policy with one running thread (a single 
+processor) using a doubly linked queue of threads, including an idle thread.
 
-How to Build       : Our Makefile provides a bunch of targets; each one builds a particular part of the project.
-       		     Refer to the following commands for building ->
 
-		     Compiling:
-		     $ make
-		     # This is equivalent to "make all" and "make a5" which can also be alternatively used.
-		     # It compiles all the code files, creates the corresponding object files and builds 
-		     # the library file "libmythread.a". It also builds the mythread_test file - a sample
-		     # test program provided - which tests out all the mythread_ functions.
+Members:
+-------
+Jitesh Shah       - jhshah
+Salil Kanitkar    - sskanitk
+Aditya Jalgaonkar - ajalgao
+
+
+How to Build:
+------------
+Our Makefile provides a bunch of targets; each one builds a particular part 
+of the project.
+Refer to the following commands for building ->
+
+Compiling:
+     $ make
+# This is equivalent to "make all" and "make a5" which can also be alternatively used.
+# It compiles all the code files, creates the corresponding object files and builds 
+# the library file "libmythread.a". It also builds the mythread_test file - a sample
+# test program provided - which tests out all the mythread_ functions.
 		     
-		     Library Compilation:
-		     $ make lib
+Library Compilation:
+     $ make lib
 
-		     Cleaning:
-		     $ make clean
+Cleaning:
+     $ make clean
 
-		     Test file:
-		     $ make test
+Test file:
+     $ make test
 
-		     Tags:
-		     $ make tags
-		     # This target will create tags for both emacs and vim. We do not advertize any editor :-)
+Tags:
+     $ make tags
+# This target will create tags for both emacs and vim. We do not advertize any editor :-)
 
-		     Display archive contents:
-		     $ ar t libmythread.a
+Display archive contents:
+     $ ar t libmythread.a
 
-How to use the 
-Library            : The mythread_test.c file provides a simple demonstration of how to use this mythread library.
+
+How to use the Library:
+----------------------
+The mythread_test.c file provides a simple demonstration of how to use this 
+mythread library.
        	   		  
-		     It creates some predefined number of threads using mythread_create(), passes a different interger variable
-		     initialized to some value to all the created threads. The main thread then does a 'mythread_join' on 
-		     all of these threads. The thread function that each thread invokes increments the count by 50, and then
-		     voluntarily yields the processor (which incidentally is the only way to relinquish control by a thread).
-		     Next time when the thread gets scheduled, it increments the count again by 50 and does a 'mythread_exit()'.
-		     The main thread, collects all the counts and exists out.
+It creates some predefined number of threads using mythread_create(), passes 
+a different interger variable initialized to some value to all the created 
+threads. The main thread then does a 'mythread_join' on all of these threads. 
+The thread function that each thread invokes increments the count by 50, and 
+then voluntarily yields the processor (which incidentally is the only way to 
+relinquish control by a thread). Next time when the thread gets scheduled, 
+it increments the count again by 50 and does a 'mythread_exit()'. The main 
+thread, collects all the counts and exists out.
 			  
-Basic Workflow     : We use a user-level binary semaphore implementation called 'futex' - provided by the instrustor.
-      		     A futex_down() by a thread causes the value of the futex to count down. If the new value is -1, thread will also block.
-		     We use this abstraction to implement scheduling and yielding of the processor by a thread.
-			  
-		     mythread_create() Logic : We execute clone system call to create a new process with shared address space. 
-		     The (optional) argument passed to mythread_create specifies the stack size to be used by the created thread.
-		     We invoke a mythread_wrapper function upon completion of clone since we dont want the newly created thread to be scheduled
-		     right-away. This wrapper does a down on the futex corresponsding to this thread making the thread sleep.
+Basic Workflow:
+--------------
+We use a user-level binary semaphore implementation called 'futex' - provided 
+by the instrustor. A futex_down() by a thread causes the value of the futex to
+ count down. If the new value is -1, thread will also block. We use this 
+abstraction to implement scheduling and yielding of the processor by a thread.
+	
+		  
+mythread_create()
+----------------
+We execute clone system call to create a new process with shared address space. 
+The (optional) argument passed to mythread_create specifies the stack size to 
+be used by the created thread. We invoke a mythread_wrapper function upon 
+completion of clone since we dont want the newly created thread to be scheduled 
+right-away. This wrapper does a down on the futex corresponsding to this thread 
+making the thread sleep.
 
-		     mythread_yield() and dispatcher : When a thread wishes to relinquish control of the CPU, it calls the mythread_yield().
-		     Yield() will call a dispatcher() - which is our function for scheduling. It searches for the next thread in the Queue
-		     to be shceduled, and does a futex_up() on that thread causing it to wake up. Also, it will perform a futext_down() on itself
-		     causing itself to go sleep.
-			  
-		     mythread_join() Logic : Our Thread Control Block(tcb) contains a blockedForJoin parameter which specifies a thread that 
-		     has done a join on this thread. We set the state of the thread that has done a join on this thread to be DEFUNCT.
-		     This means that when this thread exits, it will wake up the thread that was waiting on this thread completion via join.
-		     If more than one thread try to do a mythread_join() on the same target thread, only one will succeed and all others will return error.
-			  
-  		     Idle thread : We have implemented an idle thread which infinitely loopes over and repeatedly yields the processor.
-		     When all the other threads have exited out, idle thread also exist out - ending the program execution.
 
-Data Structures    : As stated previously, we use a Double ended Queue for the imeplemntation of FIFO scheduling of threads.
-     		     The binary sempahore abstraction futex is used for yielding the thread execution.
+mythread_yield() and dispatcher:
+-------------------------------
+When a thread wishes to relinquish control of the CPU, it calls the 
+mythread_yield(). Yield() will call a dispatcher() - which is our function for 
+scheduling. It searches for the next thread in the Queue to be shceduled, and 
+does a futex_up() on that thread causing it to wake up. Also, it will perform 
+a futext_down() on itself causing itself to go sleep.
+		
+	  
+mythread_join():
+---------------
+Our Thread Control Block(tcb) contains a blockedForJoin parameter which 
+specifies a thread that has done a join on this thread. We set the state of 
+the thread that has done a join on this thread to be DEFUNCT. This means that 
+when this thread exits, it will wake up the thread that was waiting on this 
+thread completion via join. If more than one thread try to do a mythread_join() 
+on the same target thread, only one will succeed and all others will return error.
 
-References         : 1) The primary reference has been the man pages of all the POSIX thread related functions.
-		     2) A cursory study of the pthread library code.
-   		     3) futex documentation.
+	  
+Idle thread:
+-----------
+We have implemented an idle thread which infinitely loopes over and repeatedly 
+yields the processor. When all the other threads have exited out, idle thread 
+also exist out - ending the program execution.
+
+
+Data Structures:
+---------------
+As stated previously, we use a Double ended Queue for the imeplemntation of 
+FIFO scheduling of threads. The binary sempahore abstraction futex is used 
+for yielding the thread execution.
+
+
+References: 
+---------
+1) man pages of all the POSIX thread related functions.
+2) A cursory study of the pthread library code.
+3) "A Library Implementation of POSIX Threads under UNIX" by Frank Mueller 
+   in Proceedings of the USENIX Conference, Jan 1993, pages 29-41.
+3) Futex Documentation.
