@@ -24,7 +24,8 @@ ifeq ($(DEBUG),1)
 EXTRA_CFLAGS += -DDEBUG
 endif
 
-.PHONY: all lib clean tags test
+.PHONY: all lib clean tags test a3
+a5:  all
 all: lib test
 
 lib: $(LIB)
