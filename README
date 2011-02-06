@@ -17,3 +17,10 @@ Test file:
 
 Display archive contents:
 	$ ar t libmythread.a
+
+
+Headings to be filled up:
+1) Start with names of members and aim of the project.
+1) How to build.
+2) How to use the library (refer to test program and some explanation about it)
+3) Basic architecture explanation.
