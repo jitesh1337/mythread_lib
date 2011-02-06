@@ -1,8 +1,22 @@
+/* Single Author info:
+ *      sskanitk   Salil S Kanitkar
+ * Group info:
+ *      jhshah     Jitesh H Shah
+ *      sskanitk   Salil S Kanitkar
+ *      ajalgao    Aditya A Jalgaonkar
+ */
+
+/* We use a Queue Data structure for managing the tcb corresponding to each thread created. 
+   The queue is implemented using a double ended linked list.
+ */
 #include<mythread.h>
 
+/* The global extern pointer defined in mythread.h which points to the head node in
+   Queue of the Thread Control Blocks.
+*/
 mythread_private_t *mythread_q_head;
 
-/*
+/* This function initializes the Queue with a single node.
 */
 void mythread_q_init(mythread_private_t * node)
 {
@@ -14,6 +28,9 @@ void mythread_q_init(mythread_private_t * node)
 
 }
 
+/* This function adds a node to the Queue, at the end of the Queue. 
+   This is equivalent to Enque operation.
+ */
 void mythread_q_add(mythread_private_t * node)
 {
 
@@ -32,6 +49,8 @@ void mythread_q_add(mythread_private_t * node)
 
 }
 
+/* This function deleted a specified(passed as a parameter) node from the Queue.
+ */
 void mythread_q_delete(mythread_private_t * node)
 {
 
@@ -54,6 +73,9 @@ void mythread_q_delete(mythread_private_t * node)
 
 }
 
+/* This function iterates over the ntire Queue and prints out the state(see mythread.h to refer to various states)
+   of all the tcb members.
+ */
 void mythread_q_state_display()
 {
 
@@ -72,6 +94,8 @@ void mythread_q_state_display()
 
 }
 
+/* This function iterates over the Queue and prints out the state of the specified thread.
+ */
 mythread_private_t *mythread_q_search(unsigned long new_tid)
 {
 

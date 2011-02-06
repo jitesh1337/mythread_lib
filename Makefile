@@ -1,9 +1,9 @@
 # Single Author info:
-# 	jhshah 	Jitesh H Shah
+# 	jhshah 	 Jitesh H Shah
 # Group info:
-# 	jhshah	Jitesh H Shah
-# 	salilk	Salil S Kanitkar
-# 	ajalgao	Aditya A Jalgaonkar
+# 	jhshah	 Jitesh H Shah
+# 	sskanitk Salil S Kanitkar
+# 	ajalgao	 Aditya A Jalgaonkar
 #
 
 SRCS =  futex.c mythread_q.c mythread_create.c mythread_exit.c mythread_self.c mythread_yield.c mythread_exit.c mythread_join.c mythread_utilities.c mythread_wrapper.c mythread_idle.c
