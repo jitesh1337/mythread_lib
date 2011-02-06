@@ -1,9 +1,9 @@
 /* Single Author info:
- * 	jhshah 	Jitesh H Shah
+ * 	jhshah 	 Jitesh H Shah
  * Group info:
- * 	jhshah	Jitesh H Shah
- * 	salilk	Salil S Kanitkar
- * 	ajalgao	Aditya A Jalgaonkar
+ * 	jhshah	 Jitesh H Shah
+ * 	sskanitk Salil S Kanitkar
+ * 	ajalgao	 Aditya A Jalgaonkar
  */
 
 #include <unistd.h>
@@ -39,7 +39,7 @@ void *mythread_idle(void *phony)
 		if (traverse_tcb->tid == idle_tcb_tid)
 			exit(0);
 
-		/* Some thread still awaits execution, yeild ourselves */
+		/* Some thread still awaits execution, yield ourselves */
 		mythread_yield();
 	}
 }

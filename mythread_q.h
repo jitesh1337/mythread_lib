@@ -1,3 +1,11 @@
+/* Single Author info:
+ *      sskanitk   Salil S Kanitkar
+ * Group info:
+ *      jhshah     Jitesh H Shah
+ *      sskanitk   Salil S Kanitkar
+ *      ajalgao    Aditya A Jalgaonkar
+ */
+
 /*
    mythread_q.h : Function prototypes for thread q functions.
 */
