@@ -28,12 +28,12 @@ static __inline__ int __futex_up(int *counter)
 }
 
 /* Simple atomic increment. */
-static __inline__ void __atomic_inc(int *counter)
-{
-  int oval, val = *counter;
+// static __inline__ void __atomic_inc(int *counter)
+// {
+//   int oval, val = *counter;
 
-  oval = compare_and_swap(counter, val+1, val);
-}
+//   oval = compare_and_swap(counter, val+1, val);
+// }
 
 /* Atomic decrement, and return 1 if result is negative. */
 static __inline__ int __furwock_dec_negative(int *counter)
