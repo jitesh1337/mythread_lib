@@ -13,7 +13,7 @@ TEST_SRCS = mythread_test.c
 TEST_OBJS = $(TEST_SRCS:.c=.o)
 DEBUG=0
 
-CFLAGS = -Wall -I. -g
+CFLAGS = -Wall -Werror -I. -g
 LDFLAGS = -L.
 LIB = libmythread.a
 
