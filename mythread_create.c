@@ -5,7 +5,7 @@
  *      sskanitk  Salil S Kanitkar
  *      ajalgao    Aditya A Jalgaonkar
  */
-
+#define _GNU_SOURCE
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
